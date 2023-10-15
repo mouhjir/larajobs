@@ -6,8 +6,8 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
-use Filament\Resources\Form;
-use Filament\Resources\Table;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Hash;
 use Filament\Tables\Columns\TextColumn;
@@ -15,7 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BooleanColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
-use STS\FilamentImpersonate\Impersonate;
+use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
@@ -25,29 +25,29 @@ class UserResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
 
-    protected static function getNavigationLabel(): string
+    public static function getNavigationLabel(): string
     {
-        return trans('filament-user::user.resource.label');
+        return trans('User');
     }
 
     public static function getPluralLabel(): string
     {
-        return trans('filament-user::user.resource.label');
+        return trans('Users');
     }
 
     public static function getLabel(): string
     {
-        return trans('filament-user::user.resource.single');
+        return trans('User');
     }
 
-    protected static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): ?string
     {
-        return config('filament-user.group');
+        return __('settings');
     }
 
     protected function getTitle(): string
     {
-        return trans('filament-user::user.resource.title.resource');
+        return trans('User');
     }
 
     public static function getPermissionPrefixes(): array
@@ -66,9 +66,9 @@ class UserResource extends Resource implements HasShieldPermissions
     public static function form(Form $form): Form
     {
         $rows = [
-            TextInput::make('name')->required()->label(trans('filament-user::user.resource.name')),
-            TextInput::make('email')->email()->required()->label(trans('filament-user::user.resource.email')),
-            Forms\Components\TextInput::make('password')->label(trans('filament-user::user.resource.password'))
+            TextInput::make('name')->required()->label(trans('Name')),
+            TextInput::make('email')->email()->required()->label(trans('Email')),
+            Forms\Components\TextInput::make('password')->label(trans('Password'))
                 ->password()
                 ->maxLength(255)
                 ->dehydrateStateUsing(static function ($state) use ($form){
@@ -84,7 +84,7 @@ class UserResource extends Resource implements HasShieldPermissions
         ];
 
         if(config('filament-user.shield')){
-            $rows[] = Forms\Components\MultiSelect::make('roles')->relationship('roles', 'name')->label(trans('filament-user::user.resource.roles'));
+            $rows[] = Forms\Components\MultiSelect::make('roles')->relationship('roles', 'name')->label(trans('Roles'));
         }
 
         $form->schema($rows);
@@ -98,41 +98,43 @@ class UserResource extends Resource implements HasShieldPermissions
             ->columns([
                 TextColumn::make('id')
                     ->sortable()
-                    ->label(trans('filament-user::user.resource.id')),
+                    ->label(trans('Id')),
                 TextColumn::make('name')
                     ->sortable()->searchable()
-                    ->label(trans('filament-user::user.resource.name')),
+                    ->label(trans('Name')),
                 TextColumn::make('email')
                     ->sortable()
                     ->searchable()
-                    ->label(trans('filament-user::user.resource.email')),
+                    ->label(trans('Email')),
                 BooleanColumn::make('email_verified_at')
                     ->sortable()
                     ->searchable()
-                    ->label(trans('filament-user::user.resource.email_verified_at')),
+                    ->label(trans('Email verified at')),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(trans('filament-user::user.resource.created_at'))
+                    ->label(trans('created at'))
                     ->dateTime('M j, Y')->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label(trans('filament-user::user.resource.updated_at'))
+                    ->label(trans('updated at'))
                     ->dateTime('M j, Y')->sortable(),
 
             ])
             ->filters([
                 Tables\Filters\Filter::make('verified')
-                    ->label(trans('filament-user::user.resource.verified'))
+                    ->label(trans('Verified'))
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('email_verified_at')),
                 Tables\Filters\Filter::make('unverified')
-                    ->label(trans('filament-user::user.resource.unverified'))
+                    ->label(trans('Unverified'))
                     ->query(fn (Builder $query): Builder => $query->whereNull('email_verified_at')),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Impersonate::make('impersonate')
+                    ->visible(auth()->user()->can('impersonate_user'))
             ]);
 
-        if(config('filament-user.impersonate')){
-            $table->prependActions([
-                Impersonate::make('impersonate')
-                ->visible(auth()->user()->can('impersonate_user')),
-            ]);
-        }
+
+
+
 
         return $table;
     }

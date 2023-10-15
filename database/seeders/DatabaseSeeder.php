@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
 
 
-        Job::factory(6)->create([
+        Job::factory(20)->create([
             "user_id" => 1
         ]);
 

@@ -37,7 +37,7 @@ Route::group(['as' => 'auth.'], function () {
     });
 });
 
-
+ 
 
 // Temporary Homepage Route
 Route::get('/', [JobController::class, 'index']);

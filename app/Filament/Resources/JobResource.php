@@ -7,9 +7,9 @@ use App\Filament\Resources\JobResource\RelationManagers;
 use App\Models\Job;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Resources\Form;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Resources\Table;
+use Filament\Tables\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -18,7 +18,7 @@ class JobResource extends Resource
 {
     protected static ?string $model = Job::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -66,6 +66,7 @@ class JobResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user_id')
+                    ->label(__('user name'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->getStateUsing(fn($record)=> User::query()->find($record->user_id)?->name),
                 Tables\Columns\TextColumn::make('title'),

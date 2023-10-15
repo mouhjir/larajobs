@@ -123,4 +123,6 @@ class UserController extends Controller
 
         return redirect()->route('jobs.index')->with('message', 'You have been logged out! 😶');
     }
+   
+
 }
